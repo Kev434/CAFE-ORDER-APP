@@ -36,7 +36,7 @@ class OrderServiceTest {
 
         CreateOrderRequest request = new CreateOrderRequest(
             null, "Alice",
-            List.of(new CreateOrderRequest.OrderItemRequest(item.getId(), 2))
+            List.of(new CreateOrderRequest.OrderItemRequest(item.getId(), 2, false))
         );
 
         Order order = orderService.createOrder(request);
@@ -57,7 +57,7 @@ class OrderServiceTest {
 
         CreateOrderRequest request = new CreateOrderRequest(
             userId, null,
-            List.of(new CreateOrderRequest.OrderItemRequest(item.getId(), 1))
+            List.of(new CreateOrderRequest.OrderItemRequest(item.getId(), 1, false))
         );
 
         Order order = orderService.createOrder(request);

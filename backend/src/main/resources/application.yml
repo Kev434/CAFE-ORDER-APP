@@ -16,8 +16,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 supabase:
-  jwt:
-    secret: ${SUPABASE_JWT_SECRET}
+  url: ${SUPABASE_URL}
 
 cors:
   allowed-origins: http://localhost:3000
