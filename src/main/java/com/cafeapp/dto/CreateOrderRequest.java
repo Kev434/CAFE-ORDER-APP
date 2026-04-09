@@ -12,6 +12,7 @@ public record CreateOrderRequest(
 ) {
     public record OrderItemRequest(
         UUID menuItemId,
-        @Positive int quantity
+        @Positive int quantity,
+        boolean surpriseDiscount
     ) {}
 }

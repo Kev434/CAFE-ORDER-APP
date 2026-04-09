@@ -39,10 +39,14 @@ public class OrderService {
             orderItem.setOrder(order);
             orderItem.setMenuItem(menuItem);
             orderItem.setQuantity(itemReq.quantity());
-            orderItem.setPriceAtPurchase(menuItem.getPrice());
+            BigDecimal itemPrice = menuItem.getPrice();
+            if (itemReq.surpriseDiscount()) {
+                itemPrice = itemPrice.divide(BigDecimal.valueOf(2), 2, java.math.RoundingMode.HALF_UP);
+            }
+            orderItem.setPriceAtPurchase(itemPrice);
             order.getItems().add(orderItem);
 
-            total = total.add(menuItem.getPrice().multiply(BigDecimal.valueOf(itemReq.quantity())));
+            total = total.add(itemPrice.multiply(BigDecimal.valueOf(itemReq.quantity())));
         }
         order.setTotal(total);
         Order saved = orderRepository.save(order);
