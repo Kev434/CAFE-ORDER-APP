@@ -17,16 +17,35 @@ public class MenuController {
     }
 
     @GetMapping
-    public List<MenuItemResponse> getMenuItems(@RequestParam(required = false) String category) {
-        List<MenuItem> items = (category != null)
-            ? menuService.getItemsByCategory(category)
-            : menuService.getAllAvailableItems();
+    public List<MenuItemResponse> getMenuItems(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> exclude) {
+        List<MenuItem> items;
+        boolean hasExclude = exclude != null && !exclude.isEmpty();
+
+        if (category != null && hasExclude) {
+            items = menuService.getItemsByCategoryExcludingAllergens(category, exclude);
+        } else if (category != null) {
+            items = menuService.getItemsByCategory(category);
+        } else if (hasExclude) {
+            items = menuService.getItemsExcludingAllergens(exclude);
+        } else {
+            items = menuService.getAllAvailableItems();
+        }
+
         return items.stream().map(MenuItemResponse::from).toList();
     }
 
     @GetMapping("/random")
-    public ResponseEntity<MenuItemResponse> getRandomItem(@RequestParam String category) {
-        MenuItem item = menuService.getRandomItemByCategory(category);
+    public ResponseEntity<MenuItemResponse> getRandomItem(
+            @RequestParam String category,
+            @RequestParam(required = false) List<String> exclude) {
+        boolean hasExclude = exclude != null && !exclude.isEmpty();
+
+        MenuItem item = hasExclude
+            ? menuService.getRandomItemByCategoryExcludingAllergens(category, exclude)
+            : menuService.getRandomItemByCategory(category);
+
         if (item == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(MenuItemResponse.from(item));
     }
