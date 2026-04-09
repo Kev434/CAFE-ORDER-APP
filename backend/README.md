@@ -21,7 +21,7 @@ Spring Boot REST API for the Cafe Order App.
    export SUPABASE_DB_URL=jdbc:postgresql://<your-supabase-host>:5432/postgres
    export SUPABASE_DB_USER=postgres
    export SUPABASE_DB_PASSWORD=<your-db-password>
-   export SUPABASE_JWT_SECRET=<your-jwt-secret>
+   export SUPABASE_URL=<your-supabase-project-url>
    ```
 
 3. Run the application:
