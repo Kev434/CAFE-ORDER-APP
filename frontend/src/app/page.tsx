@@ -5,21 +5,33 @@ import { MenuItemType } from '@/types'
 import { apiFetch } from '@/lib/api'
 import MenuCard from '@/components/MenuCard'
 import CategoryFilter from '@/components/CategoryFilter'
+import AllergenFilter from '@/components/AllergenFilter'
 import PickForMe from '@/components/PickForMe'
 
 export default function HomePage() {
   const [items, setItems] = useState<MenuItemType[]>([])
   const [category, setCategory] = useState('')
+  const [excluded, setExcluded] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+
+  const toggleAllergen = (allergen: string) => {
+    setExcluded((prev) =>
+      prev.includes(allergen) ? prev.filter((a) => a !== allergen) : [...prev, allergen]
+    )
+  }
 
   useEffect(() => {
     setLoading(true)
-    const path = category ? `/menu?category=${category}` : '/menu'
+    const params = new URLSearchParams()
+    if (category) params.set('category', category)
+    excluded.forEach((a) => params.append('exclude', a))
+    const query = params.toString()
+    const path = query ? `/menu?${query}` : '/menu'
     apiFetch(path)
       .then(setItems)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [category])
+  }, [category, excluded])
 
   return (
     <div className="min-h-screen">
@@ -49,10 +61,13 @@ export default function HomePage() {
               {items.length} {items.length === 1 ? 'item' : 'items'} available
             </p>
           </div>
-          <PickForMe />
+          <PickForMe excluded={excluded} />
         </div>
 
         <CategoryFilter selected={category} onSelect={setCategory} />
+        <div className="mt-4">
+          <AllergenFilter excluded={excluded} onToggle={toggleAllergen} />
+        </div>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           {loading ? (

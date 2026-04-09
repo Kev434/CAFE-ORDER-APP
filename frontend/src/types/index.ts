@@ -5,6 +5,7 @@ export interface MenuItemType {
   price: number
   category: 'coffee' | 'espresso' | 'tea' | 'pastry'
   imageUrl?: string
+  allergens: string[]
 }
 
 export interface CartItem {

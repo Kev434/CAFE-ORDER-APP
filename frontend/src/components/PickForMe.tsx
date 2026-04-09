@@ -38,7 +38,11 @@ function markCategoryUsed(category: string) {
   localStorage.setItem('surprise-picks', JSON.stringify({ date: today, categories: used }))
 }
 
-export default function PickForMe() {
+interface Props {
+  excluded?: string[]
+}
+
+export default function PickForMe({ excluded }: Props) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'category' | 'rolling' | 'result'>('category')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -71,7 +75,9 @@ export default function PickForMe() {
     setSelectedCategory(cat)
     setAdded(false)
     try {
-      const item = await apiFetch(`/menu/random?category=${cat}`)
+      const params = new URLSearchParams({ category: cat })
+      if (excluded) excluded.forEach((a) => params.append('exclude', a))
+      const item = await apiFetch(`/menu/random?${params}`)
       await new Promise((r) => setTimeout(r, 1000))
       setPickedItem(item)
       setStep('result')

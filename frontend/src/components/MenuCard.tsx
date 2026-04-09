@@ -87,6 +87,19 @@ export default function MenuCard({ item, index = 0 }: Props) {
             {item.description}
           </p>
 
+          {item.allergens && item.allergens.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {item.allergens.map((a) => (
+                <span
+                  key={a}
+                  className="text-[10px] px-2 py-0.5 rounded-full bg-brew-800/80 text-brew-400 border border-brew-800"
+                >
+                  {a}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-4 pt-3 border-t border-brew-800/60">
             <span className="text-gold font-display text-xl">
               ${item.price.toFixed(2)}
