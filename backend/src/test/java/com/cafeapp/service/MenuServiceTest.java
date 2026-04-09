@@ -1,5 +1,6 @@
 package com.cafeapp.service;
 
+import com.cafeapp.entity.Allergen;
 import com.cafeapp.entity.MenuItem;
 import com.cafeapp.repository.MenuItemRepository;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -21,6 +24,23 @@ class MenuServiceTest {
 
     @InjectMocks
     private MenuService menuService;
+
+    private Allergen createAllergen(String name) {
+        Allergen allergen = new Allergen();
+        allergen.setId(UUID.randomUUID());
+        allergen.setName(name);
+        return allergen;
+    }
+
+    private MenuItem createItemWithAllergens(String name, String category, String... allergenNames) {
+        MenuItem item = createItem(name, category);
+        Set<Allergen> allergens = new HashSet<>();
+        for (String allergenName : allergenNames) {
+            allergens.add(createAllergen(allergenName));
+        }
+        item.setAllergens(allergens);
+        return item;
+    }
 
     private MenuItem createItem(String name, String category) {
         MenuItem item = new MenuItem();
@@ -65,5 +85,25 @@ class MenuServiceTest {
         when(menuItemRepository.findByCategoryAndAvailableTrue("tea")).thenReturn(List.of());
         MenuItem result = menuService.getRandomItemByCategory("tea");
         assertNull(result);
+    }
+
+    @Test
+    void getItemsExcludingAllergens_filtersCorrectly() {
+        MenuItem americano = createItemWithAllergens("Americano", "espresso");
+        when(menuItemRepository.findAvailableExcludingAllergens(List.of("dairy")))
+            .thenReturn(List.of(americano));
+        List<MenuItem> result = menuService.getItemsExcludingAllergens(List.of("dairy"));
+        assertEquals(1, result.size());
+        assertEquals("Americano", result.get(0).getName());
+    }
+
+    @Test
+    void getRandomItemExcludingAllergens_respectsExclusions() {
+        MenuItem americano = createItemWithAllergens("Americano", "espresso");
+        when(menuItemRepository.findByCategoryExcludingAllergens("espresso", List.of("dairy")))
+            .thenReturn(List.of(americano));
+        MenuItem result = menuService.getRandomItemByCategoryExcludingAllergens("espresso", List.of("dairy"));
+        assertNotNull(result);
+        assertEquals("Americano", result.getName());
     }
 }
